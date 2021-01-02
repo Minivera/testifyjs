@@ -1,0 +1,64 @@
+{
+  "name": "testifyjs",
+  "version": "1.0.0",
+  "description": "Declarative test framework for JavaScript inspired by the modern testing standards, without any magic",
+  "main": "dist/testify.js",
+  "module": "dist/testify.js",
+  "source": "testify.ts",
+  "types": "dist/testify.d.ts",
+  "typings": "dist/testify.d.ts",
+  "type": "module",
+  "files": [
+    "lib",
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc --esModuleInterop",
+    "test": "node --loader ts-node/esm --experimental-specifier-resolution=node test.ts",
+    "test:coverage": "nyc --require ts-node/register --require source-map-support/register npm run test",
+    "lint": "eslint 'lib/**/*.{js,ts}'"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Minivera/testifyjs.git"
+  },
+  "keywords": [
+    "node",
+    "test",
+    "test-runner",
+    "javascript",
+    "typescript"
+  ],
+  "author": "Minivera",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Minivera/testifyjs/issues"
+  },
+  "homepage": "https://github.com/Minivera/testifyjs#readme",
+  "dependencies": {
+    "consola": "^2.15.0"
+  },
+  "devDependencies": {
+    "@istanbuljs/nyc-config-typescript": "^1.0.1",
+    "@types/chai": "^4.2.14",
+    "@types/node": "^14.14.17",
+    "@types/sinon": "^9.0.10",
+    "@typescript-eslint/eslint-plugin": "^4.4.0",
+    "@typescript-eslint/parser": "^4.4.0",
+    "chai": "^4.2.0",
+    "eslint": "^7.16.0",
+    "eslint-config-prettier": "^6.15.0",
+    "eslint-config-standard": "^14.1.1",
+    "eslint-plugin-import": "^2.22.1",
+    "eslint-plugin-node": "^11.1.0",
+    "eslint-plugin-prettier": "^3.1.4",
+    "eslint-plugin-promise": "^4.2.1",
+    "eslint-plugin-standard": "^4.1.0",
+    "nyc": "^15.1.0",
+    "prettier": "^2.2.1",
+    "sinon": "^9.2.2",
+    "source-map-support": "^0.5.19",
+    "ts-node": "^9.1.1",
+    "typescript": "^4.1.3"
+  }
+}
