@@ -1,4 +1,7 @@
 # Testifyjs
+[![codecov](https://codecov.io/gh/Minivera/testifyjs/branch/main/graph/badge.svg?token=A9UVKHB3LL)](https://codecov.io/gh/Minivera/testifyjs)
+![Pull Request validation](https://github.com/Minivera/testifyjs/workflows/Pull%20Request%20validation/badge.svg)
+
 Testify is a unit-testing framework for JavaScript and TypeScript providing and recognizable experience, but with added
 simplicity, clarity, and reusability. Written in TypeScript, Testify can be integrated in any project without having
 to learn a separate CLI and configuration system. Just load testify and execute your script with node!
