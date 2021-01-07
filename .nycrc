@@ -1,5 +1,5 @@
 {
-    "extends": "@istanbuljs/nyc-config-typescript",
-    "require": "ts-node/register",
-    "all": true
+    "include": ["dist/**"],
+    "exclude-after-remap": false,
+    "reporter": ["text", "lcov"]
 }

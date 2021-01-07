@@ -15,7 +15,7 @@ export class SuiteRunner {
         this.name = name;
     }
 
-    public async setup(func: () => Promise<void> | void): Promise<void> {
+    public setup(func: () => Promise<void> | void): void {
         const prevRunner = this.suiteBeforeRunner;
         this.suiteBeforeRunner = async () => {
             await prevRunner();
@@ -23,7 +23,7 @@ export class SuiteRunner {
         };
     }
 
-    public async tearDown(func: () => Promise<void> | void): Promise<void> {
+    public tearDown(func: () => Promise<void> | void): void {
         const prevRunner = this.suiteAfterRunner;
         this.suiteAfterRunner = async () => {
             await prevRunner();
@@ -31,7 +31,7 @@ export class SuiteRunner {
         };
     }
 
-    public async beforeEach(func: () => Promise<void> | void): Promise<void> {
+    public beforeEach(func: () => Promise<void> | void): void {
         const prevRunner = this.individualBeforeRunner;
         this.individualBeforeRunner = async () => {
             await prevRunner();
@@ -39,7 +39,7 @@ export class SuiteRunner {
         };
     }
 
-    public async afterEach(func: () => Promise<void> | void): Promise<void> {
+    public afterEach(func: () => Promise<void> | void): void {
         const prevRunner = this.individualAfterRunner;
         this.individualAfterRunner = async () => {
             await prevRunner();
@@ -94,7 +94,9 @@ export class SuiteRunner {
                     return false;
                 }
             } catch (e) {
-                logger.error(`${this.name} -> Failed to execute entire test, see error message for more information`);
+                logger.error(
+                    `${this.name} -> Failed to execute entire test suite, see error message for more information`
+                );
                 logger.fatal(e);
                 return false;
             }

@@ -7,15 +7,15 @@
   "source": "testify.ts",
   "types": "dist/testify.d.ts",
   "typings": "dist/testify.d.ts",
-  "type": "module",
   "files": [
     "lib",
     "dist"
   ],
   "scripts": {
     "build": "tsc --esModuleInterop",
-    "test": "node --loader ts-node/esm --experimental-specifier-resolution=node test.ts",
-    "test:coverage": "nyc --require ts-node/register --require source-map-support/register npm run test",
+    "build:test": "tsc -p tsconfig.test.json",
+    "test": "npm run build:test && node --experimental-modules -r esm ./dist/test.js",
+    "test:coverage": "npm run build:test && nyc node --experimental-modules -r esm ./dist/test.js",
     "lint": "eslint 'lib/**/*.{js,ts}'"
   },
   "repository": {
@@ -54,6 +54,7 @@
     "eslint-plugin-prettier": "^3.1.4",
     "eslint-plugin-promise": "^4.2.1",
     "eslint-plugin-standard": "^4.1.0",
+    "esm": "^3.2.25",
     "nyc": "^15.1.0",
     "prettier": "^2.2.1",
     "sinon": "^9.2.2",

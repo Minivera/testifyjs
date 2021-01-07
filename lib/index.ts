@@ -63,5 +63,6 @@ export const testify = async (): Promise<void> => {
         logger.success(`${passedCount} out of ${executions.length} tests and suites passed`);
     } else {
         logger.error(`${passedCount} out of ${executions.length} tests and suites passed`);
+        process.exit(1);
     }
 };

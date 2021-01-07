@@ -9,8 +9,10 @@ const { expect } = chai;
 
 suiteFunc('testing index.ts', suite => {
     const prevExecutions = [...executions];
+    const prevProcessExit = process.exit;
 
     suite.setup(() => {
+        process.exit = sinon.stub();
         consola.wrapAll();
     });
 
@@ -22,6 +24,10 @@ suiteFunc('testing index.ts', suite => {
     suite.afterEach(() => {
         executions.splice(0);
         executions.push(...prevExecutions);
+    });
+
+    suite.tearDown(() => {
+        process.exit = prevProcessExit;
     });
 
     suite.suite('suite', suite => {
