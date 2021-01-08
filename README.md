@@ -37,13 +37,13 @@ out testify for yourself and seeing if it helps you write better tests.
 To get started, install testify using NPM
 
 ```
-npm install testifyjs
+npm install @minivera/testifyjs
 ```
 
 Create a main test file somewhere in your code base, import testify, and run it.
 
 ```js
-import { testify, test } from 'testifyjs';
+import { testify, test } from '@minivera/testifyjs';
 
 // Create a single test
 test('Hello, World!', test => {
@@ -78,7 +78,7 @@ node test.js
 Testify was built in TypeScript, for TypeScript. Here is the same example, but built in TypeScript.
 
 ```typescript
-import { testify, test } from 'testifyjs';
+import { testify, test } from '@minivera/testifyjs';
 
 test('Hello, World!', test => {
   interface Input {
@@ -110,7 +110,7 @@ Async methods are supported by default, simply create a function returning a pro
 will make sure to execute the code synchronously.
 
 ```typescript
-import { testify, test } from 'testifyjs';
+import { testify, test } from '@minivera/testifyjs';
 
 const someApiCall = async (body: string) => {
   return await fetch('somewhere', body);  
@@ -154,7 +154,7 @@ and report the test failure.
 
 
 ```typescript
-import { testify, test } from 'testifyjs';
+import { testify, test } from '@minivera/testifyjs';
 
 test('failing test', test => {
   const triggerError = () => {
@@ -174,7 +174,7 @@ await testify();
 Testify supports test suites to better organize tests or trigger specific behavior before and after tests.
 
 ```typescript
-import { testify, suite } from 'testifyjs';
+import { testify, suite } from '@minivera/testifyjs';
 
 suite('test suite', suite => {
   suite.setup(() => {
@@ -216,7 +216,7 @@ by using the node module system. Make sure to call `testify` **after** you impor
 
 ```typescript
 // somefile.ts
-import { test } from 'testifyjs';
+import { test } from '@minivera/testifyjs';
 
 test('some test', () => { /* ... */ });
 
@@ -229,20 +229,20 @@ await testify();
 ## API
 
 ### The test function
-> `import { test } from 'testifyjs';`
+> `import { test } from '@minivera/testifyjs';`
 
 `test` takes two arguments, a name to be displayed when executing the test, and a test configuration function. The
 function receives the test object as its only parameter.
 
 ### The suite function
-> `import { suite } from 'testifyjs';`
+> `import { suite } from '@minivera/testifyjs';`
 
 `suite` takes two arguments, a name to be displayed when executing the suite's test, and a suite configuration function. 
 The function receives the suite object as its only parameter.
 
 
 ### The testify function
-> `import { testify } from 'testifyjs';`
+> `import { testify } from '@minivera/testifyjs';`
 
 `testify` executes all the tests saved up to this point.
 
@@ -262,7 +262,7 @@ value. The second generic can be omitted, it will use the first value by default
 For example:
 
 ```typescript
-import { test } from 'testifyjs';
+import { test } from '@minivera/testifyjs';
 
 test('some test', test => {
   interface A {
