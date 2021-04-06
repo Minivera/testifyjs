@@ -1,6 +1,6 @@
 {
   "name": "@minivera/testifyjs",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Declarative test framework for JavaScript inspired by the modern testing standards, without any magic",
   "main": "dist/testify.js",
   "module": "dist/testify.js",
@@ -12,6 +12,7 @@
     "dist"
   ],
   "scripts": {
+    "prepublishOnly": "npm run build",
     "build": "tsc --esModuleInterop",
     "build:test": "tsc -p tsconfig.test.json",
     "test": "npm run build:test && node --experimental-modules -r esm ./dist/test.js",
