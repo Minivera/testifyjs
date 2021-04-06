@@ -1,6 +1,6 @@
 {
   "name": "@minivera/testifyjs",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Declarative test framework for JavaScript inspired by the modern testing standards, without any magic",
   "main": "dist/testify.js",
   "module": "dist/testify.js",
