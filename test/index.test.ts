@@ -37,16 +37,18 @@ suiteFunc('testing index.ts', suite => {
         }
 
         // eslint-disable-next-line @typescript-eslint/ban-types
-        const setupSuite = (spyFunc: (suite: Suite) => void): ExecutionFunction<{}, Input> => () => {
-            const name = 'test';
-            const suiteSpy = sinon.spy(spyFunc);
-            const suiteRunner = suiteFunc(name, suiteSpy);
-            return {
-                name,
-                suiteSpy,
-                suiteRunner,
+        const setupSuite =
+            (spyFunc: (suite: Suite) => void): ExecutionFunction<{}, Input> =>
+            () => {
+                const name = 'test';
+                const suiteSpy = sinon.spy(spyFunc);
+                const suiteRunner = suiteFunc(name, suiteSpy);
+                return {
+                    name,
+                    suiteSpy,
+                    suiteRunner,
+                };
             };
-        };
 
         const runSuite: ExecutionFunction<Input> = async () => {
             await testify();
@@ -102,16 +104,18 @@ suiteFunc('testing index.ts', suite => {
         }
 
         // eslint-disable-next-line @typescript-eslint/ban-types
-        const setupTest = (spyFunc: (test: Test) => void): ExecutionFunction<{}, Input> => () => {
-            const name = 'test';
-            const testSpy = sinon.spy(spyFunc);
-            const testRunner = testFunc(name, testSpy);
-            return {
-                name,
-                testSpy,
-                testRunner,
+        const setupTest =
+            (spyFunc: (test: Test) => void): ExecutionFunction<{}, Input> =>
+            () => {
+                const name = 'test';
+                const testSpy = sinon.spy(spyFunc);
+                const testRunner = testFunc(name, testSpy);
+                return {
+                    name,
+                    testSpy,
+                    testRunner,
+                };
             };
-        };
 
         const runTest: ExecutionFunction<Input> = async () => {
             await testify();

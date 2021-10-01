@@ -59,7 +59,7 @@ export class Runner {
             await this.runner(params);
             return true;
         } catch (e) {
-            logger.fatal(e);
+            logger.fatal(e as string);
             return false;
         }
     }
