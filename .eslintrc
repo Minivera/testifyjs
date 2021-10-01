@@ -2,20 +2,33 @@
   "extends": [
     "standard",
     "plugin:@typescript-eslint/recommended",
-    "prettier/@typescript-eslint",
+    "prettier",
     "plugin:import/typescript"
   ],
-  "plugins": ["standard", "@typescript-eslint", "prettier"],
+  "plugins": [
+    "standard",
+    "@typescript-eslint",
+    "prettier"
+  ],
   "parser": "@typescript-eslint/parser",
   "parserOptions": {
     "ecmaVersion": 2018,
     "sourceType": "module"
   },
   "rules": {
-    "no-var": "error", // optional, recommended when using es6+
-    "no-unused-vars": 1, // recommended
+    "no-var": "error",
+    // optional, recommended when using es6+
+    "no-unused-vars": "off",
+    // recommended
     "no-unused-expressions": "off",
-    "arrow-spacing": ["error", { "before": true, "after": true }], // recommended
+    "arrow-spacing": [
+      "error",
+      {
+        "before": true,
+        "after": true
+      }
+    ],
+    // recommended
     "comma-dangle": [
       "error",
       {
@@ -26,17 +39,23 @@
         "functions": "only-multiline"
       }
     ],
-
     // options to emulate prettier setup
-    "semi": ["error", "always"],
+    "semi": [
+      "error",
+      "always"
+    ],
     "max-len": "off",
-    "template-curly-spacing": ["error", "never"],
-    "arrow-parens": ["error", "as-needed"],
+    "template-curly-spacing": [
+      "error",
+      "never"
+    ],
+    "arrow-parens": [
+      "error",
+      "as-needed"
+    ],
     "indent": "off",
-
     // Enable prettier errors
     "prettier/prettier": "error",
-
     // standard.js
     "space-before-function-paren": [
       "error",
@@ -46,19 +65,36 @@
         "asyncArrow": "always"
       }
     ],
-
     // standard plugin - options
-    "standard/object-curly-even-spacing": ["error", "either"],
-    "standard/array-bracket-even-spacing": ["error", "either"],
-    "standard/computed-property-even-spacing": ["error", "even"],
-    "standard/no-callback-literal": ["error", ["cb", "callback"]],
-
+    "standard/object-curly-even-spacing": [
+      "error",
+      "either"
+    ],
+    "standard/array-bracket-even-spacing": [
+      "error",
+      "either"
+    ],
+    "standard/computed-property-even-spacing": [
+      "error",
+      "even"
+    ],
+    "standard/no-callback-literal": [
+      "error",
+      [
+        "cb",
+        "callback"
+      ]
+    ],
     // Typescript
-    "@typescript-eslint/no-empty-function": "off"
+    "@typescript-eslint/no-empty-function": "off",
+    "@typescript-eslint/no-unused-vars": "error",
+    "@typescript-eslint/ban-types": 0
   },
   "settings": {
     "import/parsers": {
-      "@typescript-eslint/parser": [".ts"]
+      "@typescript-eslint/parser": [
+        ".ts"
+      ]
     }
   }
 }

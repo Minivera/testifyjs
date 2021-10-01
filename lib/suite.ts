@@ -68,7 +68,7 @@ export class SuiteRunner {
                 }
             } catch (e) {
                 logger.error(`${this.name} -> Failed to execute entire test, see error message for more information`);
-                logger.fatal(e);
+                logger.fatal(e as string);
                 return false;
             }
         });
@@ -97,7 +97,7 @@ export class SuiteRunner {
                 logger.error(
                     `${this.name} -> Failed to execute entire test suite, see error message for more information`
                 );
-                logger.fatal(e);
+                logger.fatal(e as string);
                 return false;
             }
         });
@@ -118,7 +118,7 @@ export class SuiteRunner {
             return allPassed;
         } catch (e) {
             logger.error('Failed to execute entire test suite, see error message for more information');
-            logger.fatal(e);
+            logger.fatal(e as string);
             return false;
         }
     }

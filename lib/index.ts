@@ -6,45 +6,41 @@ import { logger } from './logger';
 export const executions: (() => Promise<boolean>)[] = [];
 
 export const test = (name: string, func: (starter: Test) => Promise<void> | void): void => {
-    executions.push(
-        async (): Promise<boolean> => {
-            logger.start(name);
+    executions.push(async (): Promise<boolean> => {
+        logger.start(name);
 
-            const starter = new Runner();
+        const starter = new Runner();
 
-            await func(starter);
-            const passed = await starter.run({});
+        await func(starter);
+        const passed = await starter.run({});
 
-            if (passed) {
-                logger.success(name);
-                return true;
-            } else {
-                logger.error(name);
-                return false;
-            }
+        if (passed) {
+            logger.success(name);
+            return true;
+        } else {
+            logger.error(name);
+            return false;
         }
-    );
+    });
 };
 
 export const suite = (name: string, func: (starter: Suite) => Promise<void> | void): void => {
-    executions.push(
-        async (): Promise<boolean> => {
-            logger.start(name);
+    executions.push(async (): Promise<boolean> => {
+        logger.start(name);
 
-            const starter = new SuiteRunner(name);
+        const starter = new SuiteRunner(name);
 
-            await func(starter);
-            const passed = await starter.run();
+        await func(starter);
+        const passed = await starter.run();
 
-            if (passed) {
-                logger.success(name);
-                return true;
-            } else {
-                logger.error(name);
-                return false;
-            }
+        if (passed) {
+            logger.success(name);
+            return true;
+        } else {
+            logger.error(name);
+            return false;
         }
-    );
+    });
 };
 
 export const testify = async (): Promise<void> => {
