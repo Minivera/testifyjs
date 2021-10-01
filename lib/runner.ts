@@ -2,6 +2,14 @@ import { RunnerParams, ExecutionFunction, Arranger, Acter, Asserter } from './ty
 import { logger } from './logger';
 
 export class Runner {
+    private readonly name: string;
+    private readonly suiteIds: string[];
+
+    constructor(name: string, ...suiteIds: string[]) {
+        this.name = name;
+        this.suiteIds = suiteIds;
+    }
+
     /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
     private runner = async (params: any): Promise<any> => ({ ...params });
 
@@ -59,7 +67,7 @@ export class Runner {
             await this.runner(params);
             return true;
         } catch (e) {
-            logger.fatal(e as string);
+            logger.fatalTest(e as string, this.name, ...this.suiteIds);
             return false;
         }
     }

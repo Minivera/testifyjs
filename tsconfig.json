@@ -18,7 +18,8 @@
     "strictNullChecks": true,
     "sourceMap": true,
     "target": "ESNext",
-    "types": ["node"]
+    "jsx": "react",
+    "types": ["node", "react"]
   },
   "include": ["testify.ts", "lib/**/*"],
   "exclude": ["node_modules", "dist"]

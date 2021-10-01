@@ -1,24 +1,21 @@
 import chai from 'chai';
-import sinon, { SinonSpy } from 'sinon';
-import consola from 'consola';
+import sinon /* , { SinonSpy } */ from 'sinon';
 
 import { executions, suite as suiteFunc, test as testFunc, testify } from '../lib';
 import { ExecutionFunction, Suite, Test } from '../lib/types';
 
 const { expect } = chai;
 
-suiteFunc('testing index.ts', suite => {
+suiteFunc('testing index.tsx', suite => {
     const prevExecutions = [...executions];
     const prevProcessExit = process.exit;
 
     suite.setup(() => {
         process.exit = sinon.stub();
-        consola.wrapAll();
     });
 
     suite.beforeEach(() => {
         executions.splice(0);
-        consola.mockTypes(typeName => sinon.spy(message => console.log(`${typeName} ${message}`)));
     });
 
     suite.afterEach(() => {
@@ -58,11 +55,11 @@ suiteFunc('testing index.ts', suite => {
             // eslint-disable-next-line @typescript-eslint/ban-types
             test.arrange<{}, Input>(setupSuite(() => {}))
                 .act<Input>(runSuite)
-                .assert<Input>(({ name, suiteSpy }) => {
+                .assert<Input>(({ /* name, */ suiteSpy }) => {
                     expect(suiteSpy.called).to.be.true;
 
-                    const consolaMessages = (consola.start as SinonSpy).args.map(c => c[0]);
-                    expect(consolaMessages.find(message => message.includes(name))).to.include(name);
+                    /* const consolaMessages = (consola.start as SinonSpy).args.map(c => c[0]);
+                    expect(consolaMessages.find(message => message.includes(name))).to.include(name); */
                 });
         });
 
@@ -74,9 +71,9 @@ suiteFunc('testing index.ts', suite => {
                 })
             )
                 .act<Input>(runSuite)
-                .assert<Input>(({ name }) => {
-                    const consolaMessages = (consola.success as SinonSpy).args.map(c => c[0]);
-                    expect(consolaMessages.find(message => message.includes(name))).to.include(name);
+                .assert<Input>(({ /* name */ }) => {
+                    /* const consolaMessages = (consola.success as SinonSpy).args.map(c => c[0]);
+                    expect(consolaMessages.find(message => message.includes(name))).to.include(name); */
                 });
         });
 
@@ -90,9 +87,9 @@ suiteFunc('testing index.ts', suite => {
                 })
             )
                 .act<Input>(runSuite)
-                .assert<Input>(({ name }) => {
-                    const consolaMessages = (consola.error as SinonSpy).args.map(c => c[0]);
-                    expect(consolaMessages.find(message => message.includes(name))).to.include(name);
+                .assert<Input>(({ /* name */ }) => {
+                    /* const consolaMessages = (consola.error as SinonSpy).args.map(c => c[0]);
+                    expect(consolaMessages.find(message => message.includes(name))).to.include(name); */
                 });
         });
     });
@@ -125,11 +122,11 @@ suiteFunc('testing index.ts', suite => {
             // eslint-disable-next-line @typescript-eslint/ban-types
             test.arrange<{}, Input>(setupTest(() => {}))
                 .act<Input>(runTest)
-                .assert<Input>(({ name, testSpy }) => {
+                .assert<Input>(({ /* name, */ testSpy }) => {
                     expect(testSpy.called).to.be.true;
 
-                    const consolaMessages = (consola.start as SinonSpy).args.map(c => c[0]);
-                    expect(consolaMessages.find(message => message.includes(name))).to.include(name);
+                    /* const consolaMessages = (consola.start as SinonSpy).args.map(c => c[0]);
+                    expect(consolaMessages.find(message => message.includes(name))).to.include(name); */
                 });
         });
 
@@ -137,9 +134,9 @@ suiteFunc('testing index.ts', suite => {
             // eslint-disable-next-line @typescript-eslint/ban-types
             test.arrange<{}, Input>(setupTest(() => {}))
                 .act<Input>(runTest)
-                .assert<Input>(({ name }) => {
-                    const consolaMessages = (consola.success as SinonSpy).args.map(c => c[0]);
-                    expect(consolaMessages.find(message => message.includes(name))).to.include(name);
+                .assert<Input>(({ /* name */ }) => {
+                    /* const consolaMessages = (consola.success as SinonSpy).args.map(c => c[0]);
+                    expect(consolaMessages.find(message => message.includes(name))).to.include(name); */
                 });
         });
 
@@ -153,9 +150,9 @@ suiteFunc('testing index.ts', suite => {
                 })
             )
                 .act<Input>(runTest)
-                .assert<Input>(({ name }) => {
-                    const consolaMessages = (consola.error as SinonSpy).args.map(c => c[0]);
-                    expect(consolaMessages.find(message => message.includes(name))).to.include(name);
+                .assert<Input>(({ /* name */ }) => {
+                    /* const consolaMessages = (consola.error as SinonSpy).args.map(c => c[0]);
+                    expect(consolaMessages.find(message => message.includes(name))).to.include(name); */
                 });
         });
     });

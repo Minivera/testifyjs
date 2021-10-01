@@ -20,7 +20,7 @@ suite('testing suite.ts', suite => {
     }
 
     const prepareRunner: ExecutionFunction<Input, Input> = () => ({
-        testRunner: new SuiteRunner('test'),
+        testRunner: new SuiteRunner('test', []),
         testSpy: sinon.spy(),
     });
 

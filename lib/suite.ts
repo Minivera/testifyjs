@@ -4,6 +4,7 @@ import { logger } from './logger';
 
 export class SuiteRunner {
     private readonly name: string;
+    private readonly suiteIds: string[];
 
     private suiteBeforeRunner = async (): Promise<void> => {};
     private suiteAfterRunner = async (): Promise<void> => {};
@@ -11,8 +12,9 @@ export class SuiteRunner {
     private individualAfterRunner = async (): Promise<void> => {};
     private individualRunners: (() => Promise<boolean>)[] = [];
 
-    constructor(name: string) {
+    constructor(name: string, suiteIds: string[]) {
         this.name = name;
+        this.suiteIds = suiteIds;
     }
 
     public setup(func: () => Promise<void> | void): void {
@@ -49,9 +51,9 @@ export class SuiteRunner {
 
     public test(name: string, func: (starter: Test) => Promise<void> | void): void {
         this.individualRunners.push(async () => {
-            logger.start(`${this.name} -> ${name}`);
+            logger.startTest(name, ...this.allSuiteIds);
 
-            const starter = new Runner();
+            const starter = new Runner(name, ...this.allSuiteIds);
 
             await func(starter);
             try {
@@ -60,15 +62,15 @@ export class SuiteRunner {
                 await this.individualAfterRunner();
 
                 if (passed) {
-                    logger.success(`${this.name} -> ${name}`);
+                    logger.successTest(name, ...this.allSuiteIds);
                     return true;
                 } else {
-                    logger.error(`${this.name} -> ${name}`);
+                    logger.errorTest(name, ...this.allSuiteIds);
                     return false;
                 }
             } catch (e) {
-                logger.error(`${this.name} -> Failed to execute entire test, see error message for more information`);
-                logger.fatal(e as string);
+                logger.errorTest(name, ...this.allSuiteIds);
+                logger.fatalTest(e as string, name, ...this.allSuiteIds);
                 return false;
             }
         });
@@ -76,9 +78,9 @@ export class SuiteRunner {
 
     public suite(name: string, func: (starter: Suite) => Promise<void> | void): void {
         this.individualRunners.push(async () => {
-            logger.start(`${this.name} -> ${name}`);
+            logger.startSuite(name, ...this.allSuiteIds);
 
-            const starter = new SuiteRunner(`${this.name} -> ${name}`);
+            const starter = new SuiteRunner(name, this.allSuiteIds);
 
             await func(starter);
             try {
@@ -87,17 +89,15 @@ export class SuiteRunner {
                 await this.individualAfterRunner();
 
                 if (passed) {
-                    logger.success(`${this.name} -> ${name}`);
+                    logger.successSuite(name, ...this.allSuiteIds);
                     return true;
                 } else {
-                    logger.error(`${this.name} -> ${name}`);
+                    logger.errorSuite(name, ...this.allSuiteIds);
                     return false;
                 }
             } catch (e) {
-                logger.error(
-                    `${this.name} -> Failed to execute entire test suite, see error message for more information`
-                );
-                logger.fatal(e as string);
+                logger.errorSuite(name, ...this.allSuiteIds);
+                logger.fatalSuite(e as string, name, ...this.allSuiteIds);
                 return false;
             }
         });
@@ -117,9 +117,13 @@ export class SuiteRunner {
             await this.suiteAfterRunner();
             return allPassed;
         } catch (e) {
-            logger.error('Failed to execute entire test suite, see error message for more information');
-            logger.fatal(e as string);
+            logger.errorSuite(...this.allSuiteIds);
+            logger.fatalSuite(e as string, ...this.allSuiteIds);
             return false;
         }
+    }
+
+    private get allSuiteIds(): string[] {
+        return [this.name].concat(this.suiteIds);
     }
 }
