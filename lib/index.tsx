@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
+import { render } from 'ink';
 
 import { Suite, Test } from './types';
 import { Runner } from './runner';
 import { SuiteRunner } from './suite';
-import { loggingState, logger } from './logger';
+import { logger } from './logger';
 import { TestRenderer } from './renderer';
-import { render } from 'ink';
 
 export const executions: (() => Promise<boolean>)[] = [];
 
@@ -51,11 +51,16 @@ export const testify = (): void => {
     const startTime = new Date();
 
     const App: React.FunctionComponent = () => {
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        const [_, setTime] = useState(new Date());
+        const [currentState, setCurrentState] = useState(logger.state);
+        const [, setTime] = useState(new Date());
 
         useEffect(() => {
             (async () => {
+                logger.setSubscriber(state => {
+                    setCurrentState(state);
+                    setTime(new Date());
+                });
+
                 let anyFailed = false;
                 try {
                     for (const execution of executions) {
@@ -72,16 +77,12 @@ export const testify = (): void => {
                 process.exit(anyFailed ? 1 : 0);
             })();
 
-            const timer = setInterval(() => {
-                setTime(new Date());
-            }, 100);
-
             return () => {
-                clearInterval(timer);
+                logger.clearSubscriber();
             };
-        });
+        }, []);
 
-        return <TestRenderer state={loggingState} startTime={startTime} />;
+        return <TestRenderer state={currentState} startTime={startTime} />;
     };
 
     render(<App />);

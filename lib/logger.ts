@@ -1,12 +1,14 @@
-const defaultSuite = '';
-
 export interface TestState {
+    name: string;
+    order: number;
     result?: boolean;
     started: boolean;
     messages: string[];
 }
 
 export interface SuiteState {
+    name: string;
+    order: number;
     result?: boolean;
     started: boolean;
     messages: string[];
@@ -15,89 +17,179 @@ export interface SuiteState {
 }
 
 export interface LoggingState {
-    tests: Record<string, TestState>;
-    suites: Record<string, SuiteState>;
+    tests: TestState[];
+    suites: SuiteState[];
 }
 
-// The version of TypeScript we use has some issues with cyclic types
-export const loggingState: LoggingState = {
-    suites: {},
-    tests: {},
-};
+class Logger {
+    private subscriber: (state: LoggingState) => void = () => {};
 
-const buildSuiteState = (suiteIds: string[]): SuiteState => {
-    if (suiteIds.length <= 0) {
-        suiteIds.push(defaultSuite);
+    private loggingState: LoggingState = {
+        suites: [],
+        tests: [],
+    };
+
+    private currentCount = 0;
+
+    get state() {
+        return this.loggingState;
     }
 
-    let currentSuite: SuiteState = loggingState.suites[suiteIds[0] as string];
-    suiteIds.forEach(id => {
-        if (!Object.hasOwnProperty.call(currentSuite.state.suites, id)) {
-            currentSuite.state.suites[id] = {
-                started: false,
-                messages: [],
-                state: {
-                    tests: {},
-                    suites: {},
-                },
-            };
+    setSubscriber = (func: (state: LoggingState) => void): void => {
+        this.subscriber = func;
+    };
+
+    clearSubscriber = (): void => {
+        this.subscriber = () => {};
+    };
+
+    private buildSuiteState = (suiteIds: string[]): SuiteState => {
+        let currentSuite: SuiteState | undefined;
+        suiteIds.forEach(id => {
+            if (!currentSuite) {
+                let tempSuite = this.loggingState.suites.find(el => el.name === id);
+
+                if (!tempSuite) {
+                    tempSuite = {
+                        name: id,
+                        order: this.currentCount++,
+                        started: false,
+                        messages: [],
+                        state: {
+                            tests: [],
+                            suites: [],
+                        },
+                    };
+                    this.loggingState.suites.push(tempSuite);
+                }
+
+                currentSuite = tempSuite;
+                return;
+            }
+
+            let tempSuite = currentSuite.state.suites.find(el => el.name === id);
+
+            if (!tempSuite) {
+                tempSuite = {
+                    name: id,
+                    order: this.currentCount++,
+                    started: false,
+                    messages: [],
+                    state: {
+                        tests: [],
+                        suites: [],
+                    },
+                };
+                currentSuite.state.suites.push(tempSuite);
+            }
+
+            currentSuite = tempSuite;
+        });
+
+        if (!currentSuite) {
+            throw new Error('Error, suite could not be processed.');
         }
 
-        currentSuite = currentSuite.state.suites[id];
-    });
+        return currentSuite;
+    };
 
-    return currentSuite;
-};
+    private findSuiteState = (suiteIds: string[]): SuiteState => {
+        let currentSuite: SuiteState = this.loggingState.suites.find(el => el.name === suiteIds[0]) as SuiteState;
+        suiteIds.slice(1).forEach(id => {
+            currentSuite = currentSuite.state.suites.find(el => el.name === id) as SuiteState;
+        });
 
-const findSuiteState = (suiteIds: string[]): SuiteState => {
-    if (suiteIds.length <= 0) {
-        suiteIds.push(defaultSuite);
-    }
+        return currentSuite;
+    };
 
-    let currentSuite: SuiteState = loggingState.suites[suiteIds[0] as string];
-    suiteIds.slice(1).forEach(id => {
-        currentSuite = currentSuite.state.suites[id];
-    });
+    startTest = (testId: string, ...suiteIds: string[]): void => {
+        if (suiteIds.length <= 0) {
+            this.loggingState.tests.push({
+                name: testId,
+                order: this.currentCount++,
+                started: true,
+                messages: [],
+            });
+        } else {
+            const currentSuite = this.findSuiteState(suiteIds);
 
-    return currentSuite;
-};
+            currentSuite.state.tests.push({
+                name: testId,
+                order: this.currentCount++,
+                started: true,
+                messages: [],
+            });
+        }
 
-export const logger = {
-    startTest: (testId: string, ...suiteIds: string[]): void => {
-        const currentSuite = buildSuiteState(suiteIds);
+        this.subscriber(this.loggingState);
+    };
 
-        currentSuite.state.tests[testId] = {
-            started: true,
-            messages: [],
-        };
-    },
-
-    startSuite: (...suiteIds: string[]): void => {
-        const builtSuite = buildSuiteState(suiteIds);
+    startSuite = (...suiteIds: string[]): void => {
+        const builtSuite = this.buildSuiteState(suiteIds);
         builtSuite.started = true;
-    },
 
-    successTest: (testId: string, ...suiteIds: string[]): void => {
-        findSuiteState(suiteIds).state.tests[testId].result = true;
-    },
+        this.subscriber(this.loggingState);
+    };
 
-    successSuite: (...suiteIds: string[]): void => {
-        findSuiteState(suiteIds).result = true;
-    },
+    successTest = (testId: string, ...suiteIds: string[]): void => {
+        let testArray: TestState[];
 
-    errorTest: (testId: string, ...suiteIds: string[]): void => {
-        findSuiteState(suiteIds).state.tests[testId].result = false;
-    },
+        if (suiteIds.length <= 0) {
+            testArray = this.loggingState.tests;
+        } else {
+            testArray = this.findSuiteState(suiteIds).state.tests;
+        }
 
-    errorSuite: (...suiteIds: string[]): void => {
-        findSuiteState(suiteIds).result = false;
-    },
+        (testArray.find(el => el.name === testId) as TestState).result = true;
 
-    fatalTest: (message: string, testId: string, ...suiteIds: string[]): void => {
-        findSuiteState(suiteIds).state.tests[testId].messages.push(message);
-    },
+        this.subscriber(this.loggingState);
+    };
 
-    fatalSuite: (message: string, ...suiteIds: string[]): void => {
-        findSuiteState(suiteIds).messages.push(message);
-    },
-};
+    successSuite = (...suiteIds: string[]): void => {
+        this.findSuiteState(suiteIds).result = true;
+
+        this.subscriber(this.loggingState);
+    };
+
+    errorTest = (testId: string, ...suiteIds: string[]): void => {
+        let testArray: TestState[];
+
+        if (suiteIds.length <= 0) {
+            testArray = this.loggingState.tests;
+        } else {
+            testArray = this.findSuiteState(suiteIds).state.tests;
+        }
+
+        (testArray.find(el => el.name === testId) as TestState).result = false;
+
+        this.subscriber(this.loggingState);
+    };
+
+    errorSuite = (...suiteIds: string[]): void => {
+        this.findSuiteState(suiteIds).result = false;
+
+        this.subscriber(this.loggingState);
+    };
+
+    fatalTest = (message: string, testId: string, ...suiteIds: string[]): void => {
+        let testArray: TestState[];
+
+        if (suiteIds.length <= 0) {
+            testArray = this.loggingState.tests;
+        } else {
+            testArray = this.findSuiteState(suiteIds).state.tests;
+        }
+
+        (testArray.find(el => el.name === testId) as TestState).messages.push(message);
+
+        this.subscriber(this.loggingState);
+    };
+
+    fatalSuite = (message: string, ...suiteIds: string[]): void => {
+        this.findSuiteState(suiteIds).messages.push(message);
+
+        this.subscriber(this.loggingState);
+    };
+}
+
+export const logger = new Logger();

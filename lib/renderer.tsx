@@ -4,9 +4,12 @@ import ms from 'ms';
 
 import { LoggingState, SuiteState, TestState } from './logger';
 
-export interface TestRendererProps {
-    state: LoggingState;
-    startTime: Date;
+interface TestData {
+    id: number;
+    order: number;
+    paths: string[];
+    status: string;
+    messages: string[];
 }
 
 const getBackgroundForStatus = (status: string): string | undefined => {
@@ -24,20 +27,28 @@ const getBackgroundForStatus = (status: string): string | undefined => {
 
 interface TestProps {
     status: string;
-    path: string;
+    paths: string[];
     messages: string[];
 }
 
-const Test: React.FunctionComponent<TestProps> = ({ status, path, messages }) => (
+const Test: React.FunctionComponent<TestProps> = ({ status, paths, messages }) => (
     <Box>
         <Text color="black" backgroundColor={getBackgroundForStatus(status)}>
             {` ${status.toUpperCase()} `}
         </Text>
         <Box marginLeft={1}>
-            <Text dimColor>{path.split('/')[0]}/</Text>
-            <Text bold color="white">
-                {path.split('/')[1]}
-            </Text>
+            {paths.map((path, index, array) =>
+                index >= array.length - 1 ? (
+                    <Text bold color="white" key={index}>
+                        {path}
+                    </Text>
+                ) : (
+                    <Text dimColor key={index}>
+                        {path}
+                        {' -> '}
+                    </Text>
+                )
+            )}
         </Box>
         <Box marginLeft={1}>
             {messages.map(message => (
@@ -50,111 +61,122 @@ const Test: React.FunctionComponent<TestProps> = ({ status, path, messages }) =>
 );
 
 interface SummaryProps {
-    isFinished: boolean;
-    passed: number;
-    failed: number;
+    suitesPassed: number;
+    suitesFailed: number;
+    testsPassed: number;
+    testsFailed: number;
     time: string;
 }
 
-const Summary: React.FunctionComponent<SummaryProps> = ({ isFinished, passed, failed, time }) => (
+const Summary: React.FunctionComponent<SummaryProps> = ({
+    suitesPassed,
+    suitesFailed,
+    testsPassed,
+    testsFailed,
+    time,
+}) => (
     <Box flexDirection="column" marginTop={1}>
         <Box>
-            <Box width={14}>
-                <Text bold>Test Suites:</Text>
+            <Box width={21}>
+                <Text bold>Test Suites (Tests):</Text>
             </Box>
-            {failed > 0 && (
+            {suitesFailed > 0 && (
                 <Text bold color="red">
-                    {failed} failed,{' '}
+                    {suitesFailed} failed,{' '}
                 </Text>
             )}
-            {passed > 0 && (
+            {suitesPassed > 0 && (
                 <Text bold color="green">
-                    {passed} passed,{' '}
+                    {suitesPassed} passed,{' '}
                 </Text>
             )}
-            <Text>{passed + failed} total</Text>
+            <Text>{suitesPassed + suitesFailed} total (</Text>
+            {testsFailed > 0 && (
+                <Text bold color="red">
+                    {testsFailed} failed,{' '}
+                </Text>
+            )}
+            {testsPassed > 0 && (
+                <Text bold color="green">
+                    {testsPassed} passed,{' '}
+                </Text>
+            )}
+            <Text>{testsPassed + testsFailed} total)</Text>
         </Box>
         <Box>
-            <Box width={14}>
+            <Box width={21}>
                 <Text bold>Time:</Text>
             </Box>
             <Text>{time}</Text>
         </Box>
-        {isFinished && (
-            <Box>
-                <Text dimColor>Ran all test suites.</Text>
-            </Box>
-        )}
     </Box>
 );
 
-interface TestData {
-    path: string;
-    status: string;
-    messages: string[];
+export interface TestRendererProps {
+    state: LoggingState;
+    startTime: Date;
 }
 
 export const TestRenderer: React.FunctionComponent<TestRendererProps> = ({ startTime, state }) => {
     const completedTests: TestData[] = [];
-    const runningTests: TestData[] = [];
 
-    const processSuite = (path: string, suite: SuiteState) => {
-        if (suite.started && typeof suite.result === 'undefined') {
-            runningTests.push({
-                path,
-                status: 'running',
+    let passedSuites = 0;
+    let failedSuites = 0;
+    let passedTests = 0;
+    let failedTests = 0;
+
+    const processSuite = (paths: string[], suite: SuiteState) => {
+        if (suite.started && typeof suite.result !== 'undefined') {
+            completedTests.push({
+                id: completedTests.length + 1,
+                order: suite.order,
+                paths,
+                status: !suite.result ? 'fail' : 'success',
                 messages: suite.messages,
             });
-            return;
+
+            if (suite.result) {
+                passedSuites++;
+            } else {
+                failedSuites++;
+            }
         }
 
-        completedTests.push({
-            path,
-            status: suite.result ? 'fail' : 'success',
-            messages: suite.messages,
-        });
-
-        Object.keys(suite.state.suites).forEach(key => processSuite(`${path} ${key}`, suite.state.suites[key]));
-        Object.keys(suite.state.tests).forEach(key => processTest(`${path} ${key}`, suite.state.tests[key]));
+        suite.state.suites.forEach(suite => processSuite(paths.concat(suite.name), suite));
+        suite.state.tests.forEach(test => processTest(paths.concat(test.name), test));
     };
 
-    const processTest = (path: string, test: TestState) => {
-        if (test.started && typeof test.result === 'undefined') {
-            runningTests.push({
-                path,
-                status: 'running',
+    const processTest = (paths: string[], test: TestState) => {
+        if (test.started && typeof test.result !== 'undefined') {
+            completedTests.push({
+                id: completedTests.length + 1,
+                order: test.order,
+                paths,
+                status: !test.result ? 'fail' : 'success',
                 messages: test.messages,
             });
-            return;
-        }
 
-        completedTests.push({
-            path,
-            status: test.result ? 'fail' : 'success',
-            messages: test.messages,
-        });
+            if (test.result) {
+                passedTests++;
+            } else {
+                failedTests++;
+            }
+        }
     };
 
-    Object.keys(state.suites).forEach(key => processSuite(key, state.suites[key]));
-    Object.keys(state.tests).forEach(key => processTest(key, state.tests[key]));
+    state.suites.forEach(suite => processSuite([suite.name], suite));
+    state.tests.forEach(test => processTest([test.name], test));
 
     return (
         <Box flexDirection="column">
-            <Static items={completedTests}>
-                {test => <Test key={test.path} status={test.status} path={test.path} messages={test.messages} />}
+            <Static items={completedTests.map(el => el).sort((el1, el2) => el1.order - el2.order)}>
+                {test => <Test key={test.id} status={test.status} paths={test.paths} messages={test.messages} />}
             </Static>
-            {runningTests.length > 0 && (
-                <Box flexDirection="column" marginTop={1}>
-                    {runningTests.map(test => (
-                        <Test key={test.path} status={test.status} path={test.path} messages={test.messages} />
-                    ))}
-                </Box>
-            )}
-
             <Summary
-                isFinished={runningTests.length === 0}
-                passed={completedTests.filter(test => test.status === 'pass').length}
-                failed={completedTests.filter(test => test.status === 'fail').length}
+                suitesPassed={passedSuites}
+                suitesFailed={failedSuites}
+                testsPassed={passedTests}
+                testsFailed={failedTests}
                 time={ms(Date.now() - startTime.getTime())}
             />
         </Box>

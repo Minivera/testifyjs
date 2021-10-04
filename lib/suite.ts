@@ -78,7 +78,7 @@ export class SuiteRunner {
 
     public suite(name: string, func: (starter: Suite) => Promise<void> | void): void {
         this.individualRunners.push(async () => {
-            logger.startSuite(name, ...this.allSuiteIds);
+            logger.startSuite(...this.allSuiteIds, name);
 
             const starter = new SuiteRunner(name, this.allSuiteIds);
 
@@ -89,15 +89,15 @@ export class SuiteRunner {
                 await this.individualAfterRunner();
 
                 if (passed) {
-                    logger.successSuite(name, ...this.allSuiteIds);
+                    logger.successSuite(...this.allSuiteIds, name);
                     return true;
                 } else {
-                    logger.errorSuite(name, ...this.allSuiteIds);
+                    logger.errorSuite(...this.allSuiteIds, name);
                     return false;
                 }
             } catch (e) {
-                logger.errorSuite(name, ...this.allSuiteIds);
-                logger.fatalSuite(e as string, name, ...this.allSuiteIds);
+                logger.errorSuite(...this.allSuiteIds, name);
+                logger.fatalSuite(e as string, ...this.allSuiteIds, name);
                 return false;
             }
         });
@@ -124,6 +124,6 @@ export class SuiteRunner {
     }
 
     private get allSuiteIds(): string[] {
-        return [this.name].concat(this.suiteIds);
+        return this.suiteIds.concat(this.name);
     }
 }
