@@ -1,6 +1,6 @@
 import { Test, Suite } from './types';
 import { Runner } from './runner';
-import { logger } from './logger';
+import { Logger } from './logger';
 
 export class SuiteRunner {
     private readonly name: string;
@@ -10,7 +10,7 @@ export class SuiteRunner {
     private suiteAfterRunner = async (): Promise<void> => {};
     private individualBeforeRunner = async (): Promise<void> => {};
     private individualAfterRunner = async (): Promise<void> => {};
-    private individualRunners: (() => Promise<boolean>)[] = [];
+    private individualRunners: ((logger: Logger) => Promise<boolean>)[] = [];
 
     constructor(name: string, suiteIds: string[]) {
         this.name = name;
@@ -50,7 +50,7 @@ export class SuiteRunner {
     }
 
     public test(name: string, func: (starter: Test) => Promise<void> | void): void {
-        this.individualRunners.push(async () => {
+        this.individualRunners.push(async (logger: Logger) => {
             logger.startTest(name, ...this.allSuiteIds);
 
             const starter = new Runner(name, ...this.allSuiteIds);
@@ -58,7 +58,7 @@ export class SuiteRunner {
             await func(starter);
             try {
                 await this.individualBeforeRunner();
-                const passed = await starter.run({});
+                const passed = await starter.run(logger, {});
                 await this.individualAfterRunner();
 
                 if (passed) {
@@ -77,7 +77,7 @@ export class SuiteRunner {
     }
 
     public suite(name: string, func: (starter: Suite) => Promise<void> | void): void {
-        this.individualRunners.push(async () => {
+        this.individualRunners.push(async (logger: Logger) => {
             logger.startSuite(...this.allSuiteIds, name);
 
             const starter = new SuiteRunner(name, this.allSuiteIds);
@@ -85,7 +85,7 @@ export class SuiteRunner {
             await func(starter);
             try {
                 await this.individualBeforeRunner();
-                const passed = await starter.run();
+                const passed = await starter.run(logger);
                 await this.individualAfterRunner();
 
                 if (passed) {
@@ -103,12 +103,12 @@ export class SuiteRunner {
         });
     }
 
-    public async run(): Promise<boolean> {
+    public async run(logger: Logger): Promise<boolean> {
         try {
             await this.suiteBeforeRunner();
             let allPassed = true;
             for (const individualRunner of this.individualRunners) {
-                const result = await individualRunner();
+                const result = await individualRunner(logger);
                 if (!result) {
                     allPassed = false;
                 }

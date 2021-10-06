@@ -12,14 +12,27 @@ interface TestData {
     messages: string[];
 }
 
-const getBackgroundForStatus = (status: string): string | undefined => {
+const getColorForStatus = (status: string): string | undefined => {
     switch (status) {
-        case 'runs':
+        case 'running':
             return 'yellow';
-        case 'pass':
+        case 'success':
             return 'green';
         case 'fail':
             return 'red';
+        default:
+            return undefined;
+    }
+};
+
+const getIconForStatus = (status: string): string | undefined => {
+    switch (status) {
+        case 'running':
+            return '⧗';
+        case 'success':
+            return '✓';
+        case 'fail':
+            return '✗';
         default:
             return undefined;
     }
@@ -32,32 +45,34 @@ interface TestProps {
 }
 
 const Test: React.FunctionComponent<TestProps> = ({ status, paths, messages }) => (
-    <Box>
-        <Text color="black" backgroundColor={getBackgroundForStatus(status)}>
-            {` ${status.toUpperCase()} `}
-        </Text>
-        <Box marginLeft={1}>
-            {paths.map((path, index, array) =>
-                index >= array.length - 1 ? (
-                    <Text bold color="white" key={index}>
-                        {path}
-                    </Text>
-                ) : (
-                    <Text dimColor key={index}>
-                        {path}
-                        {' -> '}
-                    </Text>
-                )
-            )}
+    <>
+        <Box>
+            <Text bold color={getColorForStatus(status)}>
+                {getIconForStatus(status)}
+            </Text>
+            <Box marginLeft={1}>
+                {paths.map((path, index, array) =>
+                    index >= array.length - 1 ? (
+                        <Text bold color={getColorForStatus(status)} key={index}>
+                            {path}
+                        </Text>
+                    ) : (
+                        <Text color={getColorForStatus(status)} key={index}>
+                            {path}
+                            {' -> '}
+                        </Text>
+                    )
+                )}
+            </Box>
         </Box>
-        <Box marginLeft={1}>
-            {messages.map(message => (
-                <Text color="black" backgroundColor="red">
-                    {message}
+        <Box marginLeft={4}>
+            {messages.map((message, index) => (
+                <Text color="red" key={index}>
+                    {message.toString()}
                 </Text>
             ))}
         </Box>
-    </Box>
+    </>
 );
 
 interface SummaryProps {
@@ -78,7 +93,7 @@ const Summary: React.FunctionComponent<SummaryProps> = ({
     <Box flexDirection="column" marginTop={1}>
         <Box>
             <Box width={21}>
-                <Text bold>Test Suites (Tests):</Text>
+                <Text bold>Completed Suites:</Text>
             </Box>
             {suitesFailed > 0 && (
                 <Text bold color="red">
@@ -90,7 +105,12 @@ const Summary: React.FunctionComponent<SummaryProps> = ({
                     {suitesPassed} passed,{' '}
                 </Text>
             )}
-            <Text>{suitesPassed + suitesFailed} total (</Text>
+            <Text>{suitesPassed + suitesFailed} total</Text>
+        </Box>
+        <Box>
+            <Box width={21}>
+                <Text bold>Completed Tests:</Text>
+            </Box>
             {testsFailed > 0 && (
                 <Text bold color="red">
                     {testsFailed} failed,{' '}
@@ -101,7 +121,7 @@ const Summary: React.FunctionComponent<SummaryProps> = ({
                     {testsPassed} passed,{' '}
                 </Text>
             )}
-            <Text>{testsPassed + testsFailed} total)</Text>
+            <Text>{testsPassed + testsFailed} total</Text>
         </Box>
         <Box>
             <Box width={21}>
@@ -119,6 +139,7 @@ export interface TestRendererProps {
 
 export const TestRenderer: React.FunctionComponent<TestRendererProps> = ({ startTime, state }) => {
     const completedTests: TestData[] = [];
+    const runningTests: TestData[] = [];
 
     let passedSuites = 0;
     let failedSuites = 0;
@@ -127,14 +148,6 @@ export const TestRenderer: React.FunctionComponent<TestRendererProps> = ({ start
 
     const processSuite = (paths: string[], suite: SuiteState) => {
         if (suite.started && typeof suite.result !== 'undefined') {
-            completedTests.push({
-                id: completedTests.length + 1,
-                order: suite.order,
-                paths,
-                status: !suite.result ? 'fail' : 'success',
-                messages: suite.messages,
-            });
-
             if (suite.result) {
                 passedSuites++;
             } else {
@@ -161,6 +174,14 @@ export const TestRenderer: React.FunctionComponent<TestRendererProps> = ({ start
             } else {
                 failedTests++;
             }
+        } else if (test.started) {
+            runningTests.push({
+                id: runningTests.length + 1,
+                order: test.order,
+                paths,
+                status: 'running',
+                messages: test.messages,
+            });
         }
     };
 
@@ -172,6 +193,11 @@ export const TestRenderer: React.FunctionComponent<TestRendererProps> = ({ start
             <Static items={completedTests.map(el => el).sort((el1, el2) => el1.order - el2.order)}>
                 {test => <Test key={test.id} status={test.status} paths={test.paths} messages={test.messages} />}
             </Static>
+            <Box>
+                {runningTests.map(test => (
+                    <Test key={test.id} status={test.status} paths={test.paths} messages={test.messages} />
+                ))}
+            </Box>
             <Summary
                 suitesPassed={passedSuites}
                 suitesFailed={failedSuites}

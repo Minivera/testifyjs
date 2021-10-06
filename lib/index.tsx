@@ -4,19 +4,19 @@ import { render } from 'ink';
 import { Suite, Test } from './types';
 import { Runner } from './runner';
 import { SuiteRunner } from './suite';
-import { logger } from './logger';
+import { Logger } from './logger';
 import { TestRenderer } from './renderer';
 
-export const executions: (() => Promise<boolean>)[] = [];
+export const executions: ((logger: Logger) => Promise<boolean>)[] = [];
 
 export const test = (name: string, func: (starter: Test) => Promise<void> | void): void => {
-    executions.push(async (): Promise<boolean> => {
+    executions.push(async (logger: Logger): Promise<boolean> => {
         logger.startTest(name);
 
         const starter = new Runner(name);
 
         await func(starter);
-        const passed = await starter.run({});
+        const passed = await starter.run(logger, {});
 
         if (passed) {
             logger.successTest(name);
@@ -29,13 +29,13 @@ export const test = (name: string, func: (starter: Test) => Promise<void> | void
 };
 
 export const suite = (name: string, func: (starter: Suite) => Promise<void> | void): void => {
-    executions.push(async (): Promise<boolean> => {
+    executions.push(async (logger: Logger): Promise<boolean> => {
         logger.startSuite(name);
 
         const starter = new SuiteRunner(name, []);
 
         await func(starter);
-        const passed = await starter.run();
+        const passed = await starter.run(logger);
 
         if (passed) {
             logger.successSuite(name);
@@ -47,43 +47,49 @@ export const suite = (name: string, func: (starter: Suite) => Promise<void> | vo
     });
 };
 
+interface AppProps {
+    startTime: Date;
+    logger: Logger;
+}
+
+export const App: React.FunctionComponent<AppProps> = ({ logger, startTime }) => {
+    const [currentState, setCurrentState] = useState(logger.state);
+    const [, setTime] = useState(new Date());
+
+    useEffect(() => {
+        (async () => {
+            logger.setSubscriber(state => {
+                setCurrentState(state);
+                setTime(new Date());
+            });
+
+            let anyFailed = false;
+            try {
+                for (const execution of executions) {
+                    const result = await execution(logger);
+                    if (!result) {
+                        anyFailed = true;
+                    }
+                }
+            } catch (e) {
+                console.error(e);
+                process.exit(1);
+            }
+
+            process.exit(anyFailed ? 1 : 0);
+        })();
+
+        return () => {
+            logger.clearSubscriber();
+        };
+    }, []);
+
+    return <TestRenderer state={currentState} startTime={startTime} />;
+};
+
 export const testify = (): void => {
     const startTime = new Date();
+    const logger = new Logger();
 
-    const App: React.FunctionComponent = () => {
-        const [currentState, setCurrentState] = useState(logger.state);
-        const [, setTime] = useState(new Date());
-
-        useEffect(() => {
-            (async () => {
-                logger.setSubscriber(state => {
-                    setCurrentState(state);
-                    setTime(new Date());
-                });
-
-                let anyFailed = false;
-                try {
-                    for (const execution of executions) {
-                        const result = await execution();
-                        if (!result) {
-                            anyFailed = true;
-                        }
-                    }
-                } catch (e) {
-                    console.error(e);
-                    process.exit(1);
-                }
-
-                process.exit(anyFailed ? 1 : 0);
-            })();
-
-            return () => {
-                logger.clearSubscriber();
-            };
-        }, []);
-
-        return <TestRenderer state={currentState} startTime={startTime} />;
-    };
-
-    render(<App />);
+    render(<App logger={logger} startTime={startTime} />);
 };

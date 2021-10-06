@@ -1,5 +1,5 @@
 import { RunnerParams, ExecutionFunction, Arranger, Acter, Asserter } from './types';
-import { logger } from './logger';
+import { Logger } from './logger';
 
 export class Runner {
     private readonly name: string;
@@ -62,7 +62,7 @@ export class Runner {
         };
     }
 
-    public async run(params: Record<string, unknown>): Promise<boolean> {
+    public async run(logger: Logger, params: Record<string, unknown>): Promise<boolean> {
         try {
             await this.runner(params);
             return true;

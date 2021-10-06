@@ -21,7 +21,7 @@ export interface LoggingState {
     suites: SuiteState[];
 }
 
-class Logger {
+export class Logger {
     private subscriber: (state: LoggingState) => void = () => {};
 
     private loggingState: LoggingState = {
@@ -191,5 +191,3 @@ class Logger {
         this.subscriber(this.loggingState);
     };
 }
-
-export const logger = new Logger();

@@ -1,19 +1,22 @@
 import chai from 'chai';
-import sinon, { SinonSpy } from 'sinon';
+import sinon, { SinonSpiedInstance, SinonSpy } from 'sinon';
 
 import { suite } from '../lib';
 import { ExecutionFunction } from '../lib/types';
 import { SuiteRunner } from '../lib/suite';
+import { Logger } from '../lib/logger';
 
 const { expect } = chai;
 
 suite('testing suite.ts', suite => {
     interface Input {
+        testLogger: SinonSpiedInstance<Logger>;
         testRunner: SuiteRunner;
         testSpy: SinonSpy;
     }
 
     interface Output {
+        testLogger: SinonSpiedInstance<Logger>;
         testRunner: SuiteRunner;
         testSpy: SinonSpy;
         result: boolean;
@@ -22,37 +25,42 @@ suite('testing suite.ts', suite => {
     const prepareRunner: ExecutionFunction<Input, Input> = () => ({
         testRunner: new SuiteRunner('test', []),
         testSpy: sinon.spy(),
+        testLogger: sinon.spy(new Logger()),
     });
 
-    const addSetup: ExecutionFunction<Input> = ({ testRunner, testSpy }) => {
+    const addSetup: ExecutionFunction<Input> = ({ testRunner, testSpy, ...rest }) => {
         testRunner.setup(testSpy);
         return {
             testRunner,
             testSpy,
+            ...rest,
         };
     };
 
-    const addTeadown: ExecutionFunction<Input> = ({ testRunner, testSpy }) => {
+    const addTeadown: ExecutionFunction<Input> = ({ testRunner, testSpy, ...rest }) => {
         testRunner.tearDown(testSpy);
         return {
             testRunner,
             testSpy,
+            ...rest,
         };
     };
 
-    const addBeforeEach: ExecutionFunction<Input> = ({ testRunner, testSpy }) => {
+    const addBeforeEach: ExecutionFunction<Input> = ({ testRunner, testSpy, ...rest }) => {
         testRunner.beforeEach(testSpy);
         return {
             testRunner,
             testSpy,
+            ...rest,
         };
     };
 
-    const addAfterEach: ExecutionFunction<Input> = ({ testRunner, testSpy }) => {
+    const addAfterEach: ExecutionFunction<Input> = ({ testRunner, testSpy, ...rest }) => {
         testRunner.afterEach(testSpy);
         return {
             testRunner,
             testSpy,
+            ...rest,
         };
     };
 
@@ -60,12 +68,15 @@ suite('testing suite.ts', suite => {
         testRunner.test('test', sinon.spy());
     };
 
-    const executeRunner: ExecutionFunction<Input, Output> = async ({ testRunner, ...rest }) => {
-        const result = await testRunner.run();
+    const executeRunner: ExecutionFunction<Input, Output> = async ({ testRunner, testLogger, ...rest }) => {
+        testLogger.startSuite('test');
+
+        const result = await testRunner.run(testLogger as unknown as Logger);
         return {
             ...rest,
             testRunner,
             result,
+            testLogger,
         };
     };
 
