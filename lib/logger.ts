@@ -31,7 +31,7 @@ export class Logger {
 
     private currentCount = 0;
 
-    get state() {
+    get state(): LoggingState {
         return this.loggingState;
     }
 
