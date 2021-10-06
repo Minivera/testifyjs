@@ -91,10 +91,11 @@ suiteFunc('testing index.tsx', suite => {
                     givenName = (testLogger.successSuite as SinonSpy).args[0];
                     expect(givenName).to.contain(name);
 
-                    expect(lastFrame()).to.contain(
-                        `Completed Suites:\u001b[22m    \u001b[1m\u001b[32m1 passed, \u001b[22m\u001b[39m1 total`
-                    );
-                    expect(lastFrame()).to.contain('Completed Tests:\u001b[22m     0 total');
+                    expect(lastFrame()).to.contain(`Completed Suites:`);
+                    expect(lastFrame()).to.contain(`1 passed`);
+                    expect(lastFrame()).to.contain(`1 total`);
+                    expect(lastFrame()).to.contain('Completed Tests:');
+                    expect(lastFrame()).to.contain('0 total');
                 });
         });
 
@@ -113,10 +114,11 @@ suiteFunc('testing index.tsx', suite => {
                     const givenName = (testLogger.errorSuite as SinonSpy).args[0];
                     expect(givenName).to.contain(name);
 
-                    expect(lastFrame()).to.contain(
-                        `Completed Suites:\u001b[22m    \u001b[1m\u001b[31m1 failed, \u001b[22m\u001b[39m1 total`
-                    );
-                    expect(lastFrame()).to.contain('Completed Tests:\u001b[22m     0 total');
+                    expect(lastFrame()).to.contain(`Completed Suites:`);
+                    expect(lastFrame()).to.contain(`1 failed`);
+                    expect(lastFrame()).to.contain(`1 total`);
+                    expect(lastFrame()).to.contain('Completed Tests:');
+                    expect(lastFrame()).to.contain('0 total');
                 });
         });
     });
@@ -179,9 +181,9 @@ suiteFunc('testing index.tsx', suite => {
                     givenName = (testLogger.successTest as SinonSpy).args[0];
                     expect(givenName).to.contain(name);
 
-                    expect(lastFrame()).to.contain(
-                        `Completed Tests:\u001b[22m     \u001b[1m\u001b[32m1 passed, \u001b[22m\u001b[39m1 total`
-                    );
+                    expect(lastFrame()).to.contain(`Completed Tests:`);
+                    expect(lastFrame()).to.contain(`1 passed`);
+                    expect(lastFrame()).to.contain(`1 total`);
                 });
         });
 
@@ -200,9 +202,9 @@ suiteFunc('testing index.tsx', suite => {
                     const givenName = (testLogger.errorTest as SinonSpy).args[0];
                     expect(givenName).to.contain(name);
 
-                    expect(lastFrame()).to.contain(
-                        `Completed Tests:\u001b[22m     \u001b[1m\u001b[31m1 failed, \u001b[22m\u001b[39m1 total`
-                    );
+                    expect(lastFrame()).to.contain(`Completed Tests:`);
+                    expect(lastFrame()).to.contain(`1 failed`);
+                    expect(lastFrame()).to.contain(`1 total`);
                 });
         });
     });
