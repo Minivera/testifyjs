@@ -3,9 +3,9 @@ import chai from 'chai';
 import sinon, { SinonSpiedInstance, SinonSpy } from 'sinon';
 import { render } from 'ink-testing-library';
 
-import { executions, suite as suiteFunc, test as testFunc, App } from '../lib';
-import { ExecutionFunction, Suite, Test } from '../lib/types';
-import { Logger } from '../lib/logger';
+import { executions, suite as suiteFunc, test as testFunc, App } from '../lib/index.js';
+import { ExecutionFunction, Suite, Test } from '../lib/types.js';
+import { Logger } from '../lib/logger.js';
 
 const { expect } = chai;
 

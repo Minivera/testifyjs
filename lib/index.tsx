@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { render } from 'ink';
 
-import { Suite, Test } from './types';
-import { Runner } from './runner';
-import { SuiteRunner } from './suite';
-import { Logger } from './logger';
-import { TestRenderer } from './renderer';
+import { Suite, Test } from './types.js';
+import { Runner } from './runner.js';
+import { SuiteRunner } from './suite.js';
+import { Logger } from './logger.js';
+import { TestRenderer } from './renderer.js';
 
 export const executions: ((logger: Logger) => Promise<boolean>)[] = [];
 

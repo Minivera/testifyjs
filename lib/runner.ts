@@ -1,5 +1,5 @@
-import { RunnerParams, ExecutionFunction, Arranger, Acter, Asserter } from './types';
-import { Logger } from './logger';
+import { RunnerParams, ExecutionFunction, Arranger, Acter, Asserter } from './types.js';
+import { Logger } from './logger.js';
 
 export class Runner {
     private readonly name: string;

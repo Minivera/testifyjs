@@ -1,10 +1,10 @@
 import chai from 'chai';
 import sinon, { SinonSpiedInstance, SinonSpy } from 'sinon';
 
-import { suite } from '../lib';
-import { ExecutionFunction } from '../lib/types';
-import { SuiteRunner } from '../lib/suite';
-import { Logger } from '../lib/logger';
+import { suite } from '../lib/index.js';
+import { ExecutionFunction } from '../lib/types.js';
+import { SuiteRunner } from '../lib/suite.js';
+import { Logger } from '../lib/logger.js';
 
 const { expect } = chai;
 

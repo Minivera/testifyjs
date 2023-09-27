@@ -1,6 +1,6 @@
-import { Test, Suite } from './types';
-import { Runner } from './runner';
-import { Logger } from './logger';
+import { Test, Suite } from './types.js';
+import { Runner } from './runner.js';
+import { Logger } from './logger.js';
 
 export class SuiteRunner {
     private readonly name: string;
