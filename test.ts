@@ -1,7 +1,7 @@
-import { testify } from './lib';
+import { testify } from './lib/index.js';
 
-import './test/index.test';
-import './test/runner.test';
-import './test/suite.test';
+import './test/index.test.js';
+import './test/runner.test.js';
+import './test/suite.test.js';
 
 testify();

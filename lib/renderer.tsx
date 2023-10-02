@@ -2,7 +2,7 @@ import React from 'react';
 import { Box, Static, Text } from 'ink';
 import ms from 'ms';
 
-import { LoggingState, SuiteState, TestState } from './logger';
+import { LoggingState, SuiteState, TestState } from './logger.js';
 
 interface TestData {
     id: number;

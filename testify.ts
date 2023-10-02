@@ -1,2 +1,2 @@
-export { testify, suite, test } from './lib';
-export * from './lib/types';
+export { testify, suite, test } from './lib/index.jsx';
+export * from './lib/types.js';
